@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>704afterFive — Charlotte's Everything Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --accent:#FF5C35;
+    --bg:#ffffff;
+    --surface:#F8F8F8;
+    --border:#E5E5E5;
+    --text:#111111;
+    --text-muted:#6B7280;
+    --radius:10px;
+    --font-display:'Bebas Neue',sans-serif;
+    --font-body:'DM Sans',sans-serif;
+  }
+  body{font-family:var(--font-body);background:var(--bg);color:var(--text);font-size:14px;}
+
+  /* Header */
+  .site-header{padding:18px 16px 12px;border-bottom:2px solid var(--accent);}
+  .site-title{font-family:var(--font-display);font-size:2rem;letter-spacing:.04em;color:var(--text);line-height:1;}
+  .site-title span{color:var(--accent);}
+  .site-sub{font-size:11px;color:var(--text-muted);margin-top:2px;letter-spacing:.08em;text-transform:uppercase;}
+
+  /* Filter bar */
+  .filter-bar{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:10px 16px 8px;}
+  .filter-label{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;}
+  .pills-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+  .pills-row::-webkit-scrollbar{display:none;}
+  .pill{
+    flex-shrink:0;
+    border:1.5px solid var(--border);
+    border-radius:20px;
+    padding:4px 11px;
+    font-size:12px;
+    font-weight:500;
+    background:transparent;
+    color:var(--text-muted);
+    cursor:pointer;
+    transition:all .15s;
+    white-space:nowrap;
+  }
+  .pill.active,.pill:hover{
+    background:var(--pill-color, var(--accent));
+    border-color:var(--pill-color, var(--accent));
+    color:#fff;
+  }
+  .hood-row{margin-top:6px;}
+  .pill-hood.active,.pill-hood:hover{background:#111;border-color:#111;color:#fff;}
+
+  /* Events list */
+  .events-list{padding:0 16px 24px;}
+  .event-row{
+    display:flex;
+    gap:12px;
+    padding:14px 0;
+    border-bottom:1px solid var(--border);
+    animation:fadeIn .2s ease;
+  }
+  .event-row.hidden{display:none;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .event-date-col{flex-shrink:0;width:68px;text-align:center;padding-top:2px;}
+  .event-date{display:block;font-size:12px;font-weight:600;color:var(--accent);}
+  .event-time{display:block;font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+  .event-body{flex:1;min-width:0;}
+  .event-title{
+    display:block;
+    font-size:14px;
+    font-weight:600;
+    color:var(--text);
+    text-decoration:none;
+    line-height:1.3;
+    margin-bottom:4px;
+  }
+  .event-title:hover{color:var(--accent);}
+
+  .event-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+  .venue-link{font-size:12px;color:var(--text-muted);text-decoration:none;}
+  .venue-link:hover{color:var(--accent);}
+  .neighborhood-badge{
+    font-size:10px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:1px 6px;
+    color:var(--text-muted);
+  }
+
+  .event-footer{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .cat-pill{
+    font-size:10px;
+    font-weight:600;
+    color:#fff;
+    border-radius:4px;
+    padding:2px 7px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .price-tag{font-size:11px;color:var(--text-muted);}
+  .gcal-btn{
+    font-size:11px;
+    color:var(--accent);
+    text-decoration:none;
+    font-weight:600;
+    margin-left:auto;
+    flex-shrink:0;
+  }
+  .gcal-btn:hover{text-decoration:underline;}
+
+  /* Empty state */
+  .empty-state{display:none;text-align:center;padding:40px 16px;color:var(--text-muted);font-size:13px;}
+  .empty-state.visible{display:block;}
+
+  /* Footer */
+  .site-footer{text-align:center;padding:16px;font-size:11px;color:var(--text-muted);border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-title"><span>704</span>afterFive</div>
+  <div class="site-sub">Charlotte's Everything Guide &nbsp;·&nbsp; Stay plugged into the 704.</div>
+</header>
+
+<div class="filter-bar">
+  <div class="filter-label">Category</div>
+  <div class="pills-row" id="cat-filters"><button class="pill pill-cat active" data-cat="All" style="--pill-color:#6B7280">All</button><button class="pill pill-cat" data-cat="Comedy" style="--pill-color:#FF5C35">Comedy</button><button class="pill pill-cat" data-cat="Music" style="--pill-color:#7C3AED">Music</button><button class="pill pill-cat" data-cat="Food & Drink" style="--pill-color:#D97706">Food & Drink</button><button class="pill pill-cat" data-cat="Arts" style="--pill-color:#0891B2">Arts</button><button class="pill pill-cat" data-cat="Sports" style="--pill-color:#16A34A">Sports</button><button class="pill pill-cat" data-cat="Family" style="--pill-color:#DB2777">Family</button><button class="pill pill-cat" data-cat="Nightlife" style="--pill-color:#1D4ED8">Nightlife</button><button class="pill pill-cat" data-cat="Health & Wellness" style="--pill-color:#059669">Health & Wellness</button></div>
+  <div class="filter-label hood-row">Neighborhood</div>
+  <div class="pills-row" id="hood-filters"><button class="pill pill-hood active" data-hood="All">All</button><button class="pill pill-hood" data-hood="Uptown">Uptown</button><button class="pill pill-hood" data-hood="NoDa">NoDa</button><button class="pill pill-hood" data-hood="South End">South End</button><button class="pill pill-hood" data-hood="Plaza Midwood">Plaza Midwood</button><button class="pill pill-hood" data-hood="Dilworth">Dilworth</button><button class="pill pill-hood" data-hood="LoSo">LoSo</button><button class="pill pill-hood" data-hood="University City">University City</button><button class="pill pill-hood" data-hood="Ballantyne">Ballantyne</button><button class="pill pill-hood" data-hood="Matthews">Matthews</button><button class="pill pill-hood" data-hood="Steele Creek">Steele Creek</button></div>
+</div>
+
+<div class="events-list" id="events-list">
+  
+  <div class="event-row" data-category="Comedy" data-neighborhood="Uptown" data-date="2025-06-06">
+    <div class="event-date-col">
+      <span class="event-date">Fri, Jun 6</span>
+      <span class="event-time">8:00 PM</span>
+    </div>
+    <div class="event-body">
+      <a class="event-title" href="https://www.comedyzone.com/charlotte" target="_blank" rel="noopener">Charlotte Comedy Zone</a>
+      <div class="event-meta">
+        <a class="venue-link" href="https://maps.google.com/?q=900%20NC%20Music%20Factory%20Blvd%2C%20Charlotte%2C%20NC%2028206" target="_blank" rel="noopener">📍 Comedy Zone Charlotte</a>
+        <span class="neighborhood-badge">Uptown</span>
+      </div>
+      <div class="event-footer">
+        <span class="cat-pill" style="background:#FF5C35">Comedy</span>
+        <span class="price-tag">$20</span>
+        <a class="gcal-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Charlotte%20Comedy%20Zone&dates=20250606/20250606&details=https%3A%2F%2Fwww.comedyzone.com%2Fcharlotte&location=900%20NC%20Music%20Factory%20Blvd%2C%20Charlotte%2C%20NC%2028206" target="_blank" rel="noopener">+ Cal</a>
+      </div>
+    </div>
+  </div>
+  <div class="event-row" data-category="Arts" data-neighborhood="NoDa" data-date="2025-06-07">
+    <div class="event-date-col">
+      <span class="event-date">Sat, Jun 7</span>
+      <span class="event-time">6:00 PM</span>
+    </div>
+    <div class="event-body">
+      <a class="event-title" href="https://charlottesgotalot.com" target="_blank" rel="noopener">NoDa Art Crawl</a>
+      <div class="event-meta">
+        <a class="venue-link" href="https://maps.google.com/?q=N%20Davidson%20St%2C%20Charlotte%2C%20NC%2028205" target="_blank" rel="noopener">📍 NoDa Arts District</a>
+        <span class="neighborhood-badge">NoDa</span>
+      </div>
+      <div class="event-footer">
+        <span class="cat-pill" style="background:#0891B2">Arts</span>
+        <span class="price-tag">Free</span>
+        <a class="gcal-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=NoDa%20Art%20Crawl&dates=20250607/20250607&details=https%3A%2F%2Fcharlottesgotalot.com&location=N%20Davidson%20St%2C%20Charlotte%2C%20NC%2028205" target="_blank" rel="noopener">+ Cal</a>
+      </div>
+    </div>
+  </div>
+  <div class="event-row" data-category="Sports" data-neighborhood="Uptown" data-date="2025-06-08">
+    <div class="event-date-col">
+      <span class="event-date">Sun, Jun 8</span>
+      <span class="event-time">7:30 PM</span>
+    </div>
+    <div class="event-body">
+      <a class="event-title" href="https://www.charlottefc.com" target="_blank" rel="noopener">Charlotte FC vs Atlanta United</a>
+      <div class="event-meta">
+        <a class="venue-link" href="https://maps.google.com/?q=800%20S%20Mint%20St%2C%20Charlotte%2C%20NC%2028202" target="_blank" rel="noopener">📍 Bank of America Stadium</a>
+        <span class="neighborhood-badge">Uptown</span>
+      </div>
+      <div class="event-footer">
+        <span class="cat-pill" style="background:#16A34A">Sports</span>
+        <span class="price-tag">$30+</span>
+        <a class="gcal-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Charlotte%20FC%20vs%20Atlanta%20United&dates=20250608/20250608&details=https%3A%2F%2Fwww.charlottefc.com&location=800%20S%20Mint%20St%2C%20Charlotte%2C%20NC%2028202" target="_blank" rel="noopener">+ Cal</a>
+      </div>
+    </div>
+  </div>
+  <div class="event-row" data-category="Food & Drink" data-neighborhood="South End" data-date="2025-06-06">
+    <div class="event-date-col">
+      <span class="event-date">Fri, Jun 6</span>
+      <span class="event-time">5:00 PM</span>
+    </div>
+    <div class="event-body">
+      <a class="event-title" href="https://charlotteonthecheap.com" target="_blank" rel="noopener">South End Food Truck Friday</a>
+      <div class="event-meta">
+        <a class="venue-link" href="https://maps.google.com/?q=2104%20South%20Blvd%2C%20Charlotte%2C%20NC%2028203" target="_blank" rel="noopener">📍 Atherton Mill</a>
+        <span class="neighborhood-badge">South End</span>
+      </div>
+      <div class="event-footer">
+        <span class="cat-pill" style="background:#D97706">Food & Drink</span>
+        <span class="price-tag">Free entry</span>
+        <a class="gcal-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=South%20End%20Food%20Truck%20Friday&dates=20250606/20250606&details=https%3A%2F%2Fcharlotteonthecheap.com&location=2104%20South%20Blvd%2C%20Charlotte%2C%20NC%2028203" target="_blank" rel="noopener">+ Cal</a>
+      </div>
+    </div>
+  </div>
+  <div class="event-row" data-category="Family" data-neighborhood="Dilworth" data-date="2025-06-07">
+    <div class="event-date-col">
+      <span class="event-date">Sat, Jun 7</span>
+      <span class="event-time">9:00 AM</span>
+    </div>
+    <div class="event-body">
+      <a class="event-title" href="https://charlotteonthecheap.com" target="_blank" rel="noopener">Saturday Morning Kids Run</a>
+      <div class="event-meta">
+        <a class="venue-link" href="https://maps.google.com/?q=1900%20East%20Blvd%2C%20Charlotte%2C%20NC%2028203" target="_blank" rel="noopener">📍 Freedom Park</a>
+        <span class="neighborhood-badge">Dilworth</span>
+      </div>
+      <div class="event-footer">
+        <span class="cat-pill" style="background:#DB2777">Family</span>
+        <span class="price-tag">Free</span>
+        <a class="gcal-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Saturday%20Morning%20Kids%20Run&dates=20250607/20250607&details=https%3A%2F%2Fcharlotteonthecheap.com&location=1900%20East%20Blvd%2C%20Charlotte%2C%20NC%2028203" target="_blank" rel="noopener">+ Cal</a>
+      </div>
+    </div>
+  </div>
+  <div class="event-row" data-category="Health & Wellness" data-neighborhood="Uptown" data-date="2025-06-08">
+    <div class="event-date-col">
+      <span class="event-date">Sun, Jun 8</span>
+      <span class="event-time">10:00 AM</span>
+    </div>
+    <div class="event-body">
+      <a class="event-title" href="https://charlottesgotalot.com" target="_blank" rel="noopener">Sunday Yoga in the Park</a>
+      <div class="event-meta">
+        <a class="venue-link" href="https://maps.google.com/?q=300%20S%20Church%20St%2C%20Charlotte%2C%20NC%2028202" target="_blank" rel="noopener">📍 Romare Bearden Park</a>
+        <span class="neighborhood-badge">Uptown</span>
+      </div>
+      <div class="event-footer">
+        <span class="cat-pill" style="background:#059669">Health & Wellness</span>
+        <span class="price-tag">Free</span>
+        <a class="gcal-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Sunday%20Yoga%20in%20the%20Park&dates=20250608/20250608&details=https%3A%2F%2Fcharlottesgotalot.com&location=300%20S%20Church%20St%2C%20Charlotte%2C%20NC%2028202" target="_blank" rel="noopener">+ Cal</a>
+      </div>
+    </div>
+  </div>
+  <div class="empty-state" id="empty-state">No events match your filters. Try adjusting above.</div>
+</div>
+
+<footer class="site-footer">
+  Updated weekly &nbsp;·&nbsp; <strong>704afterFive</strong> &nbsp;·&nbsp; Charlotte, NC
+</footer>
+
+<script>
+(function(){
+  var activeCat = 'All';
+  var activeHood = 'All';
+
+  function filterEvents(){
+    var rows = document.querySelectorAll('.event-row');
+    var visible = 0;
+    rows.forEach(function(row){
+      var catMatch = activeCat === 'All' || row.dataset.category === activeCat;
+      var hoodMatch = activeHood === 'All' || row.dataset.neighborhood === activeHood;
+      if(catMatch && hoodMatch){
+        row.classList.remove('hidden');
+        visible++;
+      } else {
+        row.classList.add('hidden');
+      }
+    });
+    var empty = document.getElementById('empty-state');
+    empty.classList.toggle('visible', visible === 0);
+  }
+
+  document.getElementById('cat-filters').addEventListener('click', function(e){
+    var btn = e.target.closest('.pill-cat');
+    if(!btn) return;
+    document.querySelectorAll('.pill-cat').forEach(function(p){p.classList.remove('active');});
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    filterEvents();
+  });
+
+  document.getElementById('hood-filters').addEventListener('click', function(e){
+    var btn = e.target.closest('.pill-hood');
+    if(!btn) return;
+    document.querySelectorAll('.pill-hood').forEach(function(p){p.classList.remove('active');});
+    btn.classList.add('active');
+    activeHood = btn.dataset.hood;
+    filterEvents();
+  });
+})();
+</script>
+
+</body>
+</html>
